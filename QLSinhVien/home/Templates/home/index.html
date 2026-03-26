@@ -1,0 +1,55 @@
+{% extends "home/base.html" %}
+
+{% block title %}Danh sách sinh viên{% endblock %}
+
+{% block content %}
+<h1 style="margin-bottom: 1.5rem; font-size: 1.75rem;">
+    {% if search_query %}Kết quả tìm kiếm: "{{ search_query }}"{% else %}Danh sách sinh viên{% endif %}
+</h1>
+
+<form action="{% url 'home:index' %}" method="GET" style="margin-bottom: 1.5rem; display: flex; gap: 0.5rem;">
+    <input type="text" name="q" value="{{ search_query }}" 
+           placeholder="Tìm theo tên, mã SV, lớp, email..." 
+           style="flex:1; padding:0.5rem 1rem; border-radius:6px; border:1px solid #475569; background:var(--card); color:var(--text);">
+    <button type="submit" class="btn btn-primary">Tìm kiếm</button>
+</form>
+
+{% if sinh_vien_list %}
+<table style="width:100%; border-collapse:collapse; background:var(--card); border-radius:8px; overflow:hidden; box-shadow:0 4px 6px rgba(0,0,0,0.2);">
+    <thead>
+        <tr style="background:rgba(59,130,246,0.15);">
+            <th style="padding:1rem; text-align:left;">Mã SV</th>
+            <th style="padding:1rem; text-align:left;">Họ tên</th>
+            <th style="padding:1rem; text-align:left;">Ngày sinh</th>
+            <th style="padding:1rem; text-align:left;">Lớp</th>
+            <th style="padding:1rem; text-align:left;">Email</th>
+            <th style="padding:1rem; text-align:left;">Điểm TB</th>
+            <th style="padding:1rem; text-align:center;">Thao tác</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for sv in sinh_vien_list %}
+        <tr style="border-top:1px solid #334155;">
+            <td style="padding:1rem;">{{ sv.ma_sv }}</td>
+            <td style="padding:1rem;">{{ sv.ho_ten }}</td>
+            <td style="padding:1rem;">{{ sv.ngay_sinh|date:"d/m/Y"|default:"-" }}</td>
+            <td style="padding:1rem;">{{ sv.lop|default:"-" }}</td>
+            <td style="padding:1rem;">{{ sv.email|default:"-" }}</td>
+            <td style="padding:1rem;">{{ sv.diem_tb|floatformat:2|default:"-" }}</td>
+            <td style="padding:1rem; text-align:center;">
+                <a href="{% url 'home:sua' sv.pk %}" class="btn btn-secondary" style="margin-right:0.5rem;">Sửa</a>
+                <form action="{% url 'home:xoa' sv.pk %}" method="POST" style="display:inline;" onsubmit="return confirm('Bạn có chắc muốn xóa?');">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">Xóa</button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<p style="color:var(--muted); padding:2rem; text-align:center;">
+    {% if search_query %}Không tìm thấy sinh viên phù hợp.{% else %}Chưa có sinh viên nào. <a href="{% url 'home:them' %}" style="color:var(--accent);">Thêm sinh viên mới</a>{% endif %}
+</p>
+{% endif %}
+{% endblock %}
